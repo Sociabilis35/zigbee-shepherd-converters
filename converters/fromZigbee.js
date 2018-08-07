@@ -9,6 +9,13 @@ const clickLookup = {
     4: 'quadruple',
 };
 
+const clickLookupDomoticz = {
+    1: 'Click',
+    2: 'Double Click',
+    3: 'Triple Click',
+    4: 'Quadruple Click',
+};
+
 const battery3V = {
     min: 2700,
     max: 3000,
@@ -168,6 +175,13 @@ const converters = {
             return {temperature: parseFloat(msg.data.data['measuredValue']) / 100.0};
         },
     },
+    xiaomi_temperature_domoticz: {
+        cid: 'msTemperatureMeasurement',
+        type: 'attReport',
+        convert: (model, msg, publish, options) => {
+            return {svalue: ""+ (parseFloat(msg.data.data['measuredValue']) / 100.0) };
+        },
+    },
     MFKZQ01LM_action_multistate: {
         cid: 'genMultistateInput',
         type: 'attReport',
@@ -244,6 +258,13 @@ const converters = {
         type: 'attReport',
         convert: (model, msg, publish, options) => {
             return {humidity: parseFloat(msg.data.data['measuredValue']) / 100.0};
+        },
+    },
+    xiaomi_humidity_domoticz: {
+        cid: 'msRelativeHumidity',
+        type: 'attReport',
+        convert: (model, msg, publish, options) => {
+            return {nvalue: parseInt(parseFloat(msg.data.data['measuredValue']) / 100.0)};
         },
     },
     xiaomi_occupancy: {
@@ -348,6 +369,13 @@ const converters = {
         type: 'attReport',
         convert: (model, msg, publish, options) => {
             return {pressure: msg.data.data['measuredValue']};
+        },
+    },
+    xiaomi_pressure_domoticz: {
+        cid: 'msPressureMeasurement',
+        type: 'attReport',
+        convert: (model, msg, publish, options) => {
+            return {svalue: msg.data.data['measuredValue']};
         },
     },
     WXKG02LM_click: {
@@ -503,26 +531,6 @@ const converters = {
             };
         },
     },
-    DNCKAT_S00X_state: {
-        cid: 'genOnOff',
-        type: 'attReport',
-        convert: (model, msg, publish, options) => {
-            const key = `state_${getKey(model.ep, msg.endpoints[0].epId)}`;
-            const payload = {};
-            payload[key] = msg.data.data['onOff'] === 1 ? 'ON' : 'OFF';
-            return payload;
-        },
-    },
-    DNCKAT_S00X_buttons: {
-        cid: 'genOnOff',
-        type: 'devChange',
-        convert: (model, msg, publish, options) => {
-            const key = `button_${getKey(model.ep, msg.endpoints[0].epId)}`;
-            const payload = {};
-            payload[key] = msg.data.data['onOff'] === 1 ? 'release' : 'hold';
-            return payload;
-        },
-    },
     Z809A_power: {
         cid: 'haElectricalMeasurement',
         type: 'attReport',
@@ -630,11 +638,6 @@ const converters = {
     ignore_basic_change: {
         cid: 'genBasic',
         type: 'devChange',
-        convert: (model, msg, publish, options) => null,
-    },
-    ignore_basic_report: {
-        cid: 'genBasic',
-        type: 'attReport',
         convert: (model, msg, publish, options) => null,
     },
     ignore_illuminance_change: {
